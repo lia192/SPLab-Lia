@@ -2,8 +2,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 abstract class Element {
-    // This abstract class will be inherited by Image, Paragraph, and Table
-    public abstract String toString();
+    public abstract void print();
 }
 
 class Author {
@@ -13,118 +12,65 @@ class Author {
         this.name = name;
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void print() {
+        System.out.println("Author: " + name);
+    }
 }
 
 class Book {
     private String title;
-    private Author author;
-    private List<Chapter> chapters;
+    private List<Author> authors;
+    private List<Element> contents;
 
     public Book(String title) {
         this.title = title;
-        this.chapters = new ArrayList<>();
+        this.authors = new ArrayList<>();
+        this.contents = new ArrayList<>();
     }
 
     public void addAuthor(Author author) {
-        this.author = author;
+        this.authors.add(author);
     }
 
-    public void addChapter(Chapter chapter) {
-        chapters.add(chapter);
+    public void addContent(Element content) {
+        this.contents.add(content);
     }
 
-    public List<Chapter> getChapters() {
-        return chapters;
-    }
-
-    public int createChapter(String title) {
-        Chapter chapter = new Chapter(title);
-        this.chapters.add(chapter);
-        return this.chapters.size() - 1;
-    }
-
-    public Chapter getChapter(int index) {
-        if (index >= 0 && index < chapters.size()) {
-            return chapters.get(index);
+    public void print() {
+        System.out.println("Book: " + title);
+        System.out.println("Authors:");
+        for (Author author : authors) {
+            author.print();
         }
-        return null;
+        for (Element content : contents) {
+            content.print();
+        }
     }
 }
 
-class Chapter {
+class Section extends Element {
     private String title;
-    private List<SubChapter> subChapters;
+    private List<Element> elements;
 
-    public Chapter(String title) {
-        this.title = title;
-        this.subChapters = new ArrayList<>();
-    }
-
-    public void addSubChapter(SubChapter subChapter) {
-        subChapters.add(subChapter);
-    }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public List<SubChapter> getSubChapters() {
-        return subChapters;
-    }
-
-    public int createSubChapter(String title) {
-        SubChapter subChapter = new SubChapter(title);
-        this.subChapters.add(subChapter);
-        return this.subChapters.size() - 1;
-    }
-
-    public SubChapter getSubChapter(int index) {
-        if (index >= 0 && index < subChapters.size()) {
-            return subChapters.get(index);
-        }
-        return null;
-    }
-}
-
-class SubChapter {
-    private String title;
-    private List<Element> elements; // Store all elements in a unified list
-
-    public SubChapter(String title) {
+    public Section(String title) {
         this.title = title;
         this.elements = new ArrayList<>();
     }
 
-    public void addElement(Element element) {
+    public void add(Element element) {
         elements.add(element);
     }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public void createNewParagraph(String text) {
-        Paragraph paragraph = new Paragraph(text);
-        this.elements.add(paragraph);
-    }
-
-    public void createNewImage(String imageURL) {
-        Image image = new Image(imageURL);
-        this.elements.add(image);
-    }
-
-    public void createNewTable(String title) {
-        Table table = new Table(title);
-        this.elements.add(table);
-    }
-
+    @Override
     public void print() {
-        System.out.println("SubChapter: " + title);
+        System.out.println(title);
         for (Element element : elements) {
-            System.out.println(element);
+            element.print();
         }
     }
 }
+
+// Image, Paragraph, and Table classes remain the same but override the print method
 
 class Image extends Element {
     private String imageURL;
@@ -134,8 +80,8 @@ class Image extends Element {
     }
 
     @Override
-    public String toString() {
-        return "Image with name: " + imageURL;
+    public void print() {
+        System.out.println("Image with name: " + imageURL);
     }
 }
 
@@ -147,8 +93,8 @@ class Paragraph extends Element {
     }
 
     @Override
-    public String toString() {
-        return text;
+    public void print() {
+        System.out.println("Paragraph: " + text);
     }
 }
 
@@ -160,27 +106,30 @@ class Table extends Element {
     }
 
     @Override
-    public String toString() {
-        return "Table with name: " + title;
+    public void print() {
+        System.out.println("Table with name: " + title);
     }
 }
 
 public class Main {
     public static void main(String[] args) {
-        Book discoTitanic = new Book("Disco Titanic");
-        Author author = new Author("Radu Pavel Gheo");
-        discoTitanic.addAuthor(author);
-        int indexChapterOne = discoTitanic.createChapter("Capitolul 1");
-        Chapter chp1 = discoTitanic.getChapter(indexChapterOne);
-        int indexSubChapterOneOne = chp1.createSubChapter("Subcapitolul 1.1");
-        SubChapter scOneOne = chp1.getSubChapter(indexSubChapterOneOne);
-        scOneOne.createNewParagraph("Paragraph 1");
-        scOneOne.createNewParagraph("Paragraph 2");
-        scOneOne.createNewParagraph("Paragraph 3");
-        scOneOne.createNewImage("Image 1");
-        scOneOne.createNewParagraph("Paragraph 4");
-        scOneOne.createNewTable("Table 1");
-        scOneOne.createNewParagraph("Paragraph 5");
-        scOneOne.print();
+        Book noapteBuna = new Book("Noapte buna, copii!");
+        Author rpGheo = new Author("Radu Pavel Gheo");
+        noapteBuna.addAuthor(rpGheo);
+        Section cap1 = new Section("Capitolul 1");
+        Section cap11 = new Section("Capitolul 1.1");
+        Section cap111 = new Section("Capitolul 1.1.1");
+        Section cap1111 = new Section("Subchapter 1.1.1.1");
+        noapteBuna.addContent(new Paragraph("Multumesc celor care ..."));
+        noapteBuna.addContent(cap1);
+        cap1.add(new Paragraph("Moto capitol"));
+        cap1.add(cap11);
+        cap11.add(new Paragraph("Text from subchapter 1.1"));
+        
+        cap11.add(cap111);
+        cap111.add(new Paragraph("Text from subchapter 1.1.1"));
+        cap111.add(cap1111);
+        cap1111.add(new Image("Image subchapter 1.1.1.1"));
+        noapteBuna.print();
     }
 }
