@@ -2,10 +2,38 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+// Interface for the alignment strategy
+interface AlignStrategy {
+    void render(String text);
+}
+
+// Concrete strategy for left-aligned text
+class AlignLeft implements AlignStrategy {
+    public void render(String text) {
+        System.out.println("<< " + text);
+    }
+}
+
+// Concrete strategy for center-aligned text
+class AlignCenter implements AlignStrategy {
+    public void render(String text) {
+        System.out.println("<<< " + text + " >>>");
+    }
+}
+
+// Concrete strategy for right-aligned text
+class AlignRight implements AlignStrategy {
+    public void render(String text) {
+        System.out.println(text + " >>");
+    }
+}
+
+// Abstract Element class
 abstract class Element {
     public abstract void print();
 }
 
+// Author class
 class Author {
     private String name;
 
@@ -18,6 +46,7 @@ class Author {
     }
 }
 
+// Book class
 class Book {
     private String title;
     private List<Author> authors;
@@ -39,7 +68,6 @@ class Book {
 
     public void print() {
         System.out.println("Book: " + title);
-        System.out.println("Authors:");
         for (Author author : authors) {
             author.print();
         }
@@ -49,6 +77,7 @@ class Book {
     }
 }
 
+// Section class
 class Section extends Element {
     private String title;
     private List<Element> elements;
@@ -71,6 +100,7 @@ class Section extends Element {
     }
 }
 
+// Image class
 class Image extends Element {
     private String imageURL;
 
@@ -78,7 +108,7 @@ class Image extends Element {
         this.imageURL = imageURL;
         // Simulate a delay in loading the image
         try {
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.out.println("Image loading was interrupted.");
@@ -91,6 +121,7 @@ class Image extends Element {
     }
 }
 
+// ImageProxy class
 class ImageProxy extends Element {
     private String imageURL;
     private Image realImage;
@@ -108,19 +139,31 @@ class ImageProxy extends Element {
     }
 }
 
+// Paragraph class with strategy implementation
 class Paragraph extends Element {
     private String text;
+    private AlignStrategy alignStrategy;
 
     public Paragraph(String text) {
         this.text = text;
+        this.alignStrategy = new AlignLeft(); // Default alignment
+    }
+
+    public void setAlignStrategy(AlignStrategy alignStrategy) {
+        this.alignStrategy = alignStrategy;
     }
 
     @Override
     public void print() {
-        System.out.println("Paragraph: " + text);
+        if (alignStrategy != null) {
+            alignStrategy.render(text);
+        } else {
+            System.out.println(text);
+        }
     }
 }
 
+// Table class
 class Table extends Element {
     private String title;
 
@@ -136,27 +179,25 @@ class Table extends Element {
 
 public class Main {
     public static void main(String[] args) {
-        long startTime = System.currentTimeMillis();
-        ImageProxy img1 = new ImageProxy("Pamela Anderson");
-        ImageProxy img2 = new ImageProxy("Kim Kardashian");
-        ImageProxy img3 = new ImageProxy("Kirby Griffin");
-        Section playboyS1 = new Section("Front Cover");
-        playboyS1.add(img1);
-        Section playboyS2 = new Section("Summer Girls");
-        playboyS2.add(img2);
-        playboyS2.add(img3);
-        Book playboy = new Book("Playboy");
-        playboy.addContent(playboyS1);
-        playboy.addContent(playboyS2);
-        long endTime = System.currentTimeMillis();
-        System.out.println("Creation of the content took " + (endTime - startTime) + " milliseconds");
-        startTime = System.currentTimeMillis();
-        playboyS1.print();
-        endTime = System.currentTimeMillis();
-        System.out.println("Printing of the section 1 took " + (endTime - startTime) + " milliseconds");
-        startTime = System.currentTimeMillis();
-        playboyS1.print();
-        endTime = System.currentTimeMillis();
-        System.out.println("Printing again the section 1 took " + (endTime - startTime) + " milliseconds");
+    Section cap1 = new Section("Capitolul 1");
+    Paragraph p1 = new Paragraph("Paragraph 1");
+    cap1.add(p1);
+    Paragraph p2 = new Paragraph("Paragraph 2");
+    cap1.add(p2);
+    Paragraph p3 = new Paragraph("Paragraph 3");
+    cap1.add(p3);
+    Paragraph p4 = new Paragraph("Paragraph 4");
+    cap1.add(p4);
+    System.out.println("Printing without Alignment");
+    System.out.println();
+    cap1.print();
+    p1.setAlignStrategy(new AlignCenter());
+    p2.setAlignStrategy(new AlignRight());
+    p3.setAlignStrategy(new AlignLeft());
+
+    System.out.println();
+    System.out.println("Printing with Alignment");
+    System.out.println();
+    cap1.print();
     }
 }
